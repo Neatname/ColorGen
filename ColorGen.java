@@ -70,9 +70,9 @@ public class ColorGen {
                 do {
                     index = rand.nextInt(colors);
                 } while (colorArray[index] == null);        // makes sure the color hasn't been used
-                int current = colorArray[index].getRGB();
+                int current = colorArray[index].getRGB();   // gets color as an int
                 colorArray[index] = null;                   // deletes the color from the list after using it
-                image.setRGB(i, j, current);
+                image.setRGB(i, j, current);                // set the pixel
                 if (j % 64 == 0){                           // the GUI kills the computer, so I only let it update every 64 iterations
                     frame.getContentPane().add(new JLabel(new ImageIcon(image)));
                     frame.setVisible(true);
