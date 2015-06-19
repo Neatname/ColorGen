@@ -81,13 +81,21 @@ public class ColorGen {
         }
     }
     
-    // this is a draft method, I'll finish it later, just ignore it. If you uncomment it, it won't compile.
-    /* public static void growing(){
+    // I just need to commit this to transfer between computers, comment it out or this won't compile.
+    public static void growing(){
+        int colors = 262144;
+        int width = 512;
+        int height = 512;
+        int adjustmentFactor = MAX_COLORS / colors;
+        int colorRange = 3;
         boolean[] colorArray = new boolean[colors + 1];
         Arrays.fill(colorArray, false);
-        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D graphics = image.createGraphics();
+        graphics.setPaint(new Color (0, 0, 0, 0));
+        graphics.fillRect( 0, 0, image.getWidth(), image.getHeight() );
         
-        JFrame frame = new JFrame("Something");
+        JFrame frame = new JFrame("ColorGen");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         JLabel emptyLabel = new JLabel("");
         emptyLabel.setPreferredSize(new Dimension(width, height));
@@ -101,19 +109,67 @@ public class ColorGen {
         
         int startX = rand.nextInt(width);
         int startY = rand.nextInt(height);
-        int startColor = rand.nextInt(colors) * (-64);
+        int startColorIndex = rand.nextInt(colors + 1) + 1;
+        int startColor = -startColorIndex * adjustmentFactor;
+        
         image.setRGB(startX, startY, startColor);
         frame.getContentPane().add(new JLabel(new ImageIcon(image)));
         frame.setVisible(true);
         
-        ArrayList<Array> queue = new ArrayList<Array>(colors / 10);
-        // this adds appropriate pixels to the queue
-        if (startX - 1 < 0)
-        // shit's not done, finish it
-        ArrayList<Array> lastX = new ArrayList<Array>(LASTX);
+        ArrayList<Integer[]> edgeList = new ArrayList<Integer[]>(colors / 10);
+        edgeList.add([startX, startY]);
+        colorArray[startColorIndex] = true;
         
-        for (int i = 1; i <= colors; i++){
-            
+        while (edgeList.length() != 0){
+            int index = rand.nextInt(edgeList.length);
+            Int[] coords = edgeList[index];
+            int currentX = coords[0];
+            int currentY = coords[1];
+            for (int x = -1; x <= 1; x++){
+                for (int y = -1; y <= 1; y++){
+                    int xToCheck = currentX + x;
+                    int yToCheck = currentY + y;
+                    if (xToCheck >= 0 && yToCheck >= 0 && xToCheck < width && yToCheck < height && image.getRGB(currentX, currentY) MORE SHIT HERE) {
+                        add to coordinate list
+                    }
+                }
+            }
+            if no open pixels{
+                remove from edge list
+                for loop counter--
+                continue
+            }
+            new pixel color list = empty
+            range = 2
+            do{
+                for ( r = -2 to 2){
+                    for (g = -2 to 2){
+                        for (b = -2 to 2){
+                            if [r, g, b] isn't used{
+                                add to possible color list
+                        }
+                    }
+                }
+                if list blank, range++
+            } while (list blank)
+            pick random unused adjacent pixel
+            give it random unused color from list
+            if that was the last adjacent pixel, remove from edge list
         }
-    } */
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
