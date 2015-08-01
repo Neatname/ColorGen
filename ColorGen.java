@@ -6,17 +6,24 @@ import java.awt.Frame;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import javax.imageio.ImageIO;
 public class ColorGen {
     
     /** this is the number of colors representable in 32 bits. */
     public static final int MAX_COLORS = 16777216;
     
-    public static void main (String[] args){
+    public static void main (String[] args) throws IOException{
         System.out.print("Which method? ");
         Scanner in = new Scanner(System.in);
         String method = in.next();
         if (method.equals("random")){
             random();
+        }
+        if (method.equals("growing")){
+            growing();
+        }
+        if (method.equals("snake")){
+            snake();
         }
         // whenever you add more methods, just add another if
         
@@ -82,18 +89,17 @@ public class ColorGen {
     }
     
     // I just need to commit this to transfer between computers, comment it out or this won't compile.
-    public static void growing(){
-        int colors = 262144;
-        int width = 512;
-        int height = 512;
-        int adjustmentFactor = MAX_COLORS / colors;
-        int colorRange = 3;
+    public static void growing() throws IOException{
+        int colors = 16777216;
+        int width = 1024;
+        int height = 1024;
+        int initialColorRange = 5;
         boolean[] colorArray = new boolean[colors + 1];
         Arrays.fill(colorArray, false);
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D graphics = image.createGraphics();
-        graphics.setPaint(new Color (0, 0, 0, 0));
-        graphics.fillRect( 0, 0, image.getWidth(), image.getHeight() );
+        graphics.setPaint(new Color (0, 0, 0, 254));
+        graphics.fillRect(0, 0, image.getWidth(), image.getHeight());
         
         JFrame frame = new JFrame("ColorGen");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -106,56 +112,210 @@ public class ColorGen {
         frame.setVisible(true);
         
         Random rand = new Random();
-        
         int startX = rand.nextInt(width);
         int startY = rand.nextInt(height);
         int startColorIndex = rand.nextInt(colors + 1) + 1;
-        int startColor = -startColorIndex * adjustmentFactor;
+        int startColor = -startColorIndex;
         
         image.setRGB(startX, startY, startColor);
         frame.getContentPane().add(new JLabel(new ImageIcon(image)));
         frame.setVisible(true);
         
         ArrayList<Integer[]> edgeList = new ArrayList<Integer[]>(colors / 10);
-        edgeList.add([startX, startY]);
-        colorArray[startColorIndex] = true;
         
-        while (edgeList.length() != 0){
-            int index = rand.nextInt(edgeList.length);
-            Int[] coords = edgeList[index];
+        Integer[] temp = new Integer[2];
+        edgeList.add(new Integer[] {startX, startY});
+        colorArray[startColorIndex] = true;
+        int counter = 1;
+        ArrayList<Integer[]> nextPossibilities = new ArrayList<Integer[]>();
+        Integer[] coords = null;
+        ArrayList<Color> colorPossibilities = new ArrayList<Color>();
+        while (edgeList.size() != 0){
+            int index = rand.nextInt(edgeList.size());
+            coords = edgeList.get(index);
             int currentX = coords[0];
             int currentY = coords[1];
+            nextPossibilities.clear();
             for (int x = -1; x <= 1; x++){
                 for (int y = -1; y <= 1; y++){
                     int xToCheck = currentX + x;
                     int yToCheck = currentY + y;
-                    if (xToCheck >= 0 && yToCheck >= 0 && xToCheck < width && yToCheck < height && image.getRGB(currentX, currentY) MORE SHIT HERE) {
-                        add to coordinate list
+                    if (xToCheck >= 0 && yToCheck >= 0 && xToCheck < width && yToCheck < height && image.getRGB(xToCheck, yToCheck) == -33554432) {
+                        nextPossibilities.add(new Integer[] {xToCheck, yToCheck});
                     }
                 }
             }
-            if no open pixels{
-                remove from edge list
-                for loop counter--
-                continue
+            if (nextPossibilities.size() == 0){
+                edgeList.remove(index);
+                continue;
             }
-            new pixel color list = empty
-            range = 2
+            colorPossibilities.clear();
+            int range = initialColorRange - 3;
+            int tempColorInt = 1;
+            int rgb = image.getRGB(currentX, currentY);
+            int currentR = (rgb >> 16) & 0xFF;
+            int currentG = (rgb >> 8) & 0xFF;
+            int currentB = rgb & 0xFF;
+            int rToCheck;
+            int gToCheck;
+            int bToCheck;
             do{
-                for ( r = -2 to 2){
-                    for (g = -2 to 2){
-                        for (b = -2 to 2){
-                            if [r, g, b] isn't used{
-                                add to possible color list
+                range += 3;
+                for (int r = -range; r <= range; r++){
+                    for (int g = -range; g <= range; g++){
+                        for (int b = -range; b <= range; b++){
+                            rToCheck = r + currentR;
+                            gToCheck = g + currentG;
+                            bToCheck = b + currentB;
+                            if (rToCheck >= 0 && gToCheck >= 0 && bToCheck >= 0 && rToCheck <= 255 && gToCheck <= 255 && bToCheck <= 255){
+                                Color tempColor = new Color(rToCheck, gToCheck, bToCheck, 255);
+                                tempColorInt = tempColor.getRGB();
+                                if (colorArray[-tempColorInt]){
+                                    continue;
+                                }
+                                colorPossibilities.add(new Color(rToCheck, gToCheck, bToCheck, 255));
+                            }
                         }
                     }
                 }
-                if list blank, range++
-            } while (list blank)
-            pick random unused adjacent pixel
-            give it random unused color from list
-            if that was the last adjacent pixel, remove from edge list
+            } while (colorPossibilities.size() == 0);
+            Integer[] xyToAdd = nextPossibilities.get(rand.nextInt(nextPossibilities.size()));
+            Color colorToAdd = colorPossibilities.get(rand.nextInt(colorPossibilities.size()));
+            image.setRGB(xyToAdd[0], xyToAdd[1], colorToAdd.getRGB());
+            colorArray[-colorToAdd.getRGB()] = true;
+            edgeList.add(xyToAdd);
+            frame.getContentPane().getComponent(1).repaint();
+            counter++;
         }
+        frame.getContentPane().add(new JLabel(new ImageIcon(image)));
+        frame.setVisible(true);
+        toFile(image);
+        System.out.println("Done.");
+    }
+    
+    
+    public static void snake() throws IOException{
+        int colors = 16777216;
+        int width = 4096;
+        int height = 4096;
+        int initialColorRange = 2;
+        boolean[] colorArray = new boolean[colors + 1];
+        Arrays.fill(colorArray, false);
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D graphics = image.createGraphics();
+        graphics.setPaint(new Color (0, 0, 0, 254));
+        graphics.fillRect(0, 0, image.getWidth(), image.getHeight());
+        
+        JFrame frame = new JFrame("ColorGen");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        JLabel emptyLabel = new JLabel("");
+        emptyLabel.setPreferredSize(new Dimension(width, height));
+        frame.getContentPane().add(emptyLabel, BorderLayout.CENTER);
+ 
+        //Display the window.
+        frame.pack();
+        frame.setVisible(true);
+        
+        Random rand = new Random();
+        int startX = rand.nextInt(width);
+        int startY = rand.nextInt(height);
+        int startColorIndex = rand.nextInt(colors + 1) + 1;
+        int startColor = -startColorIndex;
+        
+        image.setRGB(startX, startY, startColor);
+        frame.getContentPane().add(new JLabel(new ImageIcon(image)));
+        frame.setVisible(true);
+        
+        ArrayList<Integer[]> edgeList = new ArrayList<Integer[]>(colors / 3);
+        
+        Integer[] temp = new Integer[2];
+        edgeList.add(new Integer[] {startX, startY});
+        colorArray[startColorIndex] = true;
+        int counter = 1;
+        ArrayList<Integer[]> nextPossibilities = new ArrayList<Integer[]>();
+        Integer[] coords = null;
+        ArrayList<Color> colorPossibilities = new ArrayList<Color>();
+        int range = 1;
+        while (edgeList.size() != 0){
+            int index = -1;
+            for (int i = edgeList.size() - 1; i >= 0; i--){
+                if (rand.nextInt(100) < 5){
+                    index = i;
+                    break;
+                }
+            }
+            if (index == -1){
+                index = edgeList.size() - 1;
+            }
+            coords = edgeList.get(index);
+            int currentX = coords[0];
+            int currentY = coords[1];
+            nextPossibilities.clear();
+            for (int x = -1; x <= 1; x++){
+                for (int y = -1; y <= 1; y++){
+                    int xToCheck = currentX + x;
+                    int yToCheck = currentY + y;
+                    if (xToCheck >= 0 && yToCheck >= 0 && xToCheck < width && yToCheck < height && image.getRGB(xToCheck, yToCheck) == -33554432) {
+                        nextPossibilities.add(new Integer[] {xToCheck, yToCheck});
+                    }
+                }
+            }
+            if (nextPossibilities.size() == 0){
+                edgeList.remove(index);
+                continue;
+            }
+            colorPossibilities.clear();
+            int tempColorInt = 1;
+            int rgb = image.getRGB(currentX, currentY);
+            int currentR = (rgb >> 16) & 0xFF;
+            int currentG = (rgb >> 8) & 0xFF;
+            int currentB = rgb & 0xFF;
+            int rToCheck;
+            int gToCheck;
+            int bToCheck;
+            Color tempColor = null;
+            do{
+                range++;
+                for (int r = -range; r <= range; r++){
+                    for (int g = -range; g <= range; g++){
+                        for (int b = -range; b <= range; b++){
+                            rToCheck = r + currentR;
+                            gToCheck = g + currentG;
+                            bToCheck = b + currentB;
+                            if (rToCheck >= 0 && gToCheck >= 0 && bToCheck >= 0 && rToCheck <= 255 && gToCheck <= 255 && bToCheck <= 255){
+                                tempColor = new Color(rToCheck, gToCheck, bToCheck, 255);
+                                tempColorInt = tempColor.getRGB();
+                                if (colorArray[-tempColorInt]){
+                                    continue;
+                                }
+                                colorPossibilities.add(new Color(rToCheck, gToCheck, bToCheck, 255));
+                            }
+                        }
+                    }
+                }
+            } while (colorPossibilities.size() == 0);
+            Integer[] xyToAdd = nextPossibilities.get(rand.nextInt(nextPossibilities.size()));
+            Color colorToAdd = colorPossibilities.get(rand.nextInt(colorPossibilities.size()));
+            image.setRGB(xyToAdd[0], xyToAdd[1], colorToAdd.getRGB());
+            colorArray[-colorToAdd.getRGB()] = true;
+            edgeList.add(xyToAdd);
+            frame.getContentPane().getComponent(1).repaint();
+            counter++;
+            if (counter % 2048 == 0){
+                System.out.printf("%4f\n", (double) counter / (double) colors * 100);
+            }
+            range--;
+        }
+        frame.getContentPane().add(new JLabel(new ImageIcon(image)));
+        frame.setVisible(true);
+        toFile(image);
+        System.out.println("Done.");
+    }
+    
+    
+    public static void toFile(BufferedImage i) throws IOException{
+        File out = new File(System.currentTimeMillis() + ".png");
+        ImageIO.write(i, "PNG", out);
     }
 }
 
