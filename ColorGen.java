@@ -31,6 +31,9 @@ public class ColorGen {
         if (method.equals("snake3")){
             snake3();
         }
+        if (method.equals("snake4")){
+            snake4();
+        }
         // whenever you add more methods, just add another if
         
     }
@@ -100,7 +103,7 @@ public class ColorGen {
         int colors = 16777216;
         int width = 4096;
         int height = 4096;
-        int startingPoints = 50;
+        int startingPoints = 10;
         
         // array that keeps track of whether colors have been used. true = used.
         boolean[] colorArray = new boolean[colors + 1];
@@ -708,8 +711,8 @@ public class ColorGen {
         XORShiftRandom rand = new XORShiftRandom();
         int startX = rand.nextInt(width);
         int startY = rand.nextInt(height);
-        startX = 2048;
-        startY = 2048;
+        //startX = 2048;
+        //startY = 2048;
         int startColorIndex = rand.nextInt(colors + 1) + 1;
         int startColor = -startColorIndex;
         
@@ -876,6 +879,183 @@ public class ColorGen {
         System.out.println("Done.");
     }
     
+    
+    
+    public static void snake4() throws IOException{
+        int colors = 16777216;
+        int width = 4096;
+        int height = 4096;
+        
+        // [r][g][b]
+        boolean[][][] colorTracker = new boolean[256][256][256];
+        for (int i = 0; i < colorTracker.length; i++){
+            for (int j = 0; j < colorTracker.length; j++){
+                Arrays.fill(colorTracker[i][j], false);
+            }
+        }
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D graphics = image.createGraphics();
+        graphics.setPaint(new Color (0, 0, 0, 254));
+        graphics.fillRect(0, 0, image.getWidth(), image.getHeight());
+        
+        JFrame frame = new JFrame("ColorGen");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        JLabel emptyLabel = new JLabel("");
+        emptyLabel.setPreferredSize(new Dimension(width, height));
+        frame.getContentPane().add(emptyLabel, BorderLayout.CENTER);
+ 
+        //Display the window.
+        frame.pack();
+        frame.setVisible(true);
+        
+        XORShiftRandom rand = new XORShiftRandom();
+        int startX = rand.nextInt(width);
+        int startY = rand.nextInt(height);
+        int startR = rand.nextInt(256);
+        int startG = rand.nextInt(256);
+        int startB = rand.nextInt(256);
+        int colorToAdd = new Color(startR, startG, startB, 255).getRGB();
+        image.setRGB(startX, startY, colorToAdd);
+        colorTracker[startR][startG][startB] = true;
+        ArrayList<int[]> edgeList = new ArrayList<int[]>(colors / 8);
+        edgeList.add(new int[] {startX, startY});
+        frame.getContentPane().add(new JLabel(new ImageIcon(image)));
+        frame.setVisible(true);
+        
+        ArrayList<int[]> nextPossibilities = new ArrayList<int[]>(8);
+        
+        int index; int currentX; int currentY; int xToCheck; int yToCheck; int rToCheck; int gToCheck; int bToCheck; int[] xyToAdd = null; int[] coords = null; int range; int counter = 1;
+        ArrayList<Integer> colorPossibilities = new ArrayList<Integer>();
+        while (edgeList.size() != 0){
+            index = 0;
+            if (rand.nextInt(10) < 1){
+                for (int i = 0; i < edgeList.size(); i++){
+                    if (rand.nextInt(50) < 1){
+                        index = i;
+                        break;
+                    }
+                }
+            } else {
+                for (int i = edgeList.size() - 1; i >= 0; i--){
+                    if (rand.nextInt(50) < 1){
+                        index = i;
+                        break;
+                    }
+                }
+            }
+            coords = edgeList.get(index);
+            currentX = coords[0];
+            currentY = coords[1];
+            nextPossibilities.clear();
+            for (int x = -1; x <= 1; x++){
+                for (int y = -1; y <= 1; y++){
+                    xToCheck = currentX + x;
+                    yToCheck = currentY + y;
+                    try{
+                        if (image.getRGB(xToCheck, yToCheck) == -33554432) {
+                            nextPossibilities.add(new int[] {xToCheck, yToCheck});
+                        }
+                    } catch (ArrayIndexOutOfBoundsException e){}
+                }
+            }
+            if (nextPossibilities.size() == 0){
+                edgeList.remove(index);
+                continue;
+            }
+            edgeList.add(edgeList.get(index));
+            edgeList.remove(index);
+            
+            int rgb = image.getRGB(currentX, currentY);
+            int currentR = (rgb >> 16) & 0xFF;
+            int currentG = (rgb >> 8) & 0xFF;
+            int currentB = rgb & 0xFF;
+            range = 0;
+            colorPossibilities.clear();
+            do{
+                range++;
+                rToCheck = currentR - range;
+                for (int g = -range; g <= range; g++){
+                    for (int b = -range; b <= range; b++){
+                        gToCheck = g + currentG;
+                        bToCheck = b + currentB;
+                        if (rToCheck >= 0 && gToCheck >= 0 && bToCheck >= 0 && rToCheck <= 255 && gToCheck <= 255 && bToCheck <= 255 &&
+                            !colorTracker[rToCheck][gToCheck][bToCheck]){
+                            colorPossibilities.add(new Color(rToCheck, gToCheck, bToCheck, 255).getRGB());
+                        }
+                    }
+                }
+                rToCheck = currentR + range;
+                for (int g = -range; g <= range; g++){
+                    for (int b = -range; b <= range; b++){
+                        gToCheck = g + currentG;
+                        bToCheck = b + currentB;
+                        if (rToCheck >= 0 && gToCheck >= 0 && bToCheck >= 0 && rToCheck <= 255 && gToCheck <= 255 && bToCheck <= 255 &&
+                            !colorTracker[rToCheck][gToCheck][bToCheck]){
+                            colorPossibilities.add(new Color(rToCheck, gToCheck, bToCheck, 255).getRGB());
+                        }
+                    }
+                }
+                gToCheck = currentG - range;
+                for (int r = -range + 1; r <= range - 1; r++){
+                    for (int b = -range; b <= range; b++){
+                        rToCheck = r + currentR;
+                        bToCheck = b + currentB;
+                        if (rToCheck >= 0 && gToCheck >= 0 && bToCheck >= 0 && rToCheck <= 255 && gToCheck <= 255 && bToCheck <= 255 &&
+                            !colorTracker[rToCheck][gToCheck][bToCheck]){
+                            colorPossibilities.add(new Color(rToCheck, gToCheck, bToCheck, 255).getRGB());
+                        }
+                    }
+                }
+                gToCheck = currentG + range;
+                for (int r = -range + 1; r <= range - 1; r++){
+                    for (int b = -range; b <= range; b++){
+                        rToCheck = r + currentR;
+                        bToCheck = b + currentB;
+                        if (rToCheck >= 0 && gToCheck >= 0 && bToCheck >= 0 && rToCheck <= 255 && gToCheck <= 255 && bToCheck <= 255 &&
+                            !colorTracker[rToCheck][gToCheck][bToCheck]){
+                            colorPossibilities.add(new Color(rToCheck, gToCheck, bToCheck, 255).getRGB());
+                        }
+                    }
+                }
+                bToCheck = currentB - range;
+                for (int r = -range + 1; r <= range - 1; r++){
+                    for (int g = -range + 1; g <= range - 1; g++){
+                        rToCheck = r + currentR;
+                        gToCheck = g + currentG;
+                        if (rToCheck >= 0 && gToCheck >= 0 && bToCheck >= 0 && rToCheck <= 255 && gToCheck <= 255 && bToCheck <= 255 &&
+                            !colorTracker[rToCheck][gToCheck][bToCheck]){
+                            colorPossibilities.add(new Color(rToCheck, gToCheck, bToCheck, 255).getRGB());
+                        }
+                    }
+                }
+                bToCheck = currentB + range;
+                for (int r = -range + 1; r <= range - 1; r++){
+                    for (int g = -range + 1; g <= range - 1; g++){
+                        rToCheck = r + currentR;
+                        gToCheck = g + currentG;
+                        if (rToCheck >= 0 && gToCheck >= 0 && bToCheck >= 0 && rToCheck <= 255 && gToCheck <= 255 && bToCheck <= 255 &&
+                            !colorTracker[rToCheck][gToCheck][bToCheck]){
+                            colorPossibilities.add(new Color(rToCheck, gToCheck, bToCheck, 255).getRGB());
+                        }
+                    }
+                }
+            } while (colorPossibilities.size() == 0);
+            
+            xyToAdd = nextPossibilities.get(rand.nextInt(nextPossibilities.size()));
+            colorToAdd = colorPossibilities.get(rand.nextInt(colorPossibilities.size()));
+            image.setRGB(xyToAdd[0], xyToAdd[1], colorToAdd);
+            colorTracker[(colorToAdd >> 16) & 0xFF][(colorToAdd >> 8) & 0xFF][colorToAdd & 0xFF] = true;
+            edgeList.add(xyToAdd);
+            frame.getContentPane().getComponent(1).repaint();
+            counter++;
+            if (counter % 2048 == 0){
+                System.out.printf("%4f\n", (double) counter / (double) colors * 100);
+            }
+        }
+        frame.getContentPane().getComponent(1).repaint();
+        toFile(image);
+        System.out.println("Done.");
+    }
     
     
     public static void toFile(BufferedImage i) throws IOException{
