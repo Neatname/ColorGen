@@ -31,8 +31,11 @@ public class ColorGen {
         if (method.equals("snake3")){
             snake3();
         }
-        if (method.equals("snake4")){
-            snake4();
+        if (method.equals("clouds")){
+            clouds();
+        }
+        if (method.equals("directional")){
+            directional();
         }
         // whenever you add more methods, just add another if
         
@@ -881,10 +884,17 @@ public class ColorGen {
     
     
     
-    public static void snake4() throws IOException{
+    public static void clouds() throws IOException{
         int colors = 16777216;
-        int width = 4096;
-        int height = 4096;
+        Scanner in = new Scanner(System.in);
+        System.out.print("Width: ");
+        int width = in.nextInt();
+        System.out.print("Height: ");
+        int height = in.nextInt();
+        System.out.print("Rear percentage (0-100): ");
+        int rearPercent = in.nextInt();
+        System.out.print("Individual percent (0-100): ");
+        int indPercent = in.nextInt();
         
         // [r][g][b]
         boolean[][][] colorTracker = new boolean[256][256][256];
@@ -928,16 +938,16 @@ public class ColorGen {
         ArrayList<Integer> colorPossibilities = new ArrayList<Integer>();
         while (edgeList.size() != 0){
             index = 0;
-            if (rand.nextInt(10) < 1){
+            if (rand.nextInt(100) < rearPercent){
                 for (int i = 0; i < edgeList.size(); i++){
-                    if (rand.nextInt(50) < 1){
+                    if (rand.nextInt(100) < indPercent){
                         index = i;
                         break;
                     }
                 }
             } else {
                 for (int i = edgeList.size() - 1; i >= 0; i--){
-                    if (rand.nextInt(50) < 1){
+                    if (rand.nextInt(100) < indPercent){
                         index = i;
                         break;
                     }
@@ -1048,7 +1058,7 @@ public class ColorGen {
             edgeList.add(xyToAdd);
             frame.getContentPane().getComponent(1).repaint();
             counter++;
-            if (counter % 2048 == 0){
+            if (counter % 4096 == 0){
                 System.out.printf("%4f\n", (double) counter / (double) colors * 100);
             }
         }
@@ -1057,6 +1067,214 @@ public class ColorGen {
         System.out.println("Done.");
     }
     
+    
+    public static void directional() throws IOException{
+        int colors = 16777216;
+        Scanner in = new Scanner(System.in);
+        System.out.print("Width: ");
+        int width = in.nextInt();
+        System.out.print("Height: ");
+        int height = in.nextInt();
+        System.out.print("Rear percentage (0-100): ");
+        int rearPercent = in.nextInt();
+        System.out.print("Individual percent (0-1000): ");
+        int indPercent = in.nextInt();
+        System.out.print("Direction choosing %: ");
+        int dirPercent = in.nextInt();
+        
+        // [r][g][b]
+        boolean[][][] colorTracker = new boolean[256][256][256];
+        for (int i = 0; i < colorTracker.length; i++){
+            for (int j = 0; j < colorTracker.length; j++){
+                Arrays.fill(colorTracker[i][j], false);
+            }
+        }
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D graphics = image.createGraphics();
+        graphics.setPaint(new Color (0, 0, 0, 254));
+        graphics.fillRect(0, 0, image.getWidth(), image.getHeight());
+        
+        JFrame frame = new JFrame("ColorGen");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        JLabel emptyLabel = new JLabel("");
+        emptyLabel.setPreferredSize(new Dimension(width, height));
+        frame.getContentPane().add(emptyLabel, BorderLayout.CENTER);
+ 
+        //Display the window.
+        frame.pack();
+        frame.setVisible(true);
+        
+        XORShiftRandom rand = new XORShiftRandom();
+        DirectionalPixel pixelToAdd = new DirectionalPixel(rand, width, height);
+        
+        ArrayList<DirectionalPixel> edgeList = new ArrayList<DirectionalPixel>(colors / 20);
+        edgeList.add(pixelToAdd);
+        
+        int startR = rand.nextInt(256);
+        int startG = rand.nextInt(256);
+        int startB = rand.nextInt(256);
+        int colorToAdd = new Color(startR, startG, startB, 255).getRGB();
+        
+        image.setRGB(pixelToAdd.getX(), pixelToAdd.getY(), colorToAdd);
+        colorTracker[startR][startG][startB] = true;
+        
+        frame.getContentPane().add(new JLabel(new ImageIcon(image)));
+        frame.setVisible(true);
+        
+        ArrayList<Integer> colorPossibilities = new ArrayList<Integer>(50);
+        ArrayList<DirectionalPixel> nextPossibilities = new ArrayList<DirectionalPixel>(8);
+        
+        int index; DirectionalPixel toAddTo = null; int range; int rToCheck; int gToCheck; int bToCheck; int counter = 1;
+        while (edgeList.size() != 0){
+            
+            /* index = 0;
+            if (rand.nextInt(100) < rearPercent){
+                for (int i = 0; i < edgeList.size(); i++){
+                    if (rand.nextInt(100) < indPercent){
+                        index = i;
+                        break;
+                    }
+                }
+            } else {
+                for (int i = edgeList.size() - 1; i >= 0; i--){
+                    if (rand.nextInt(100) < indPercent){
+                        index = i;
+                        break;
+                    }
+                }
+            } */
+            
+            /* index = rand.nextInt(edgeList.size()); */
+            
+            index = edgeList.size() - 1;
+            if (rand.nextInt(100) < rearPercent){
+                index = rand.nextInt(edgeList.size());
+            } else {
+                for (int i = edgeList.size() - 1; i >= 0; i--){
+                    if (rand.nextInt(100) < indPercent){
+                        index = i;
+                        break;
+                    }
+                }
+            }
+            
+            /* index = edgeList.size() - 1;
+            for (int i = edgeList.size() - 1; i >= 0; i--){
+                if (rand.nextInt(1000) < indPercent){
+                    index = i;
+                    break;
+                }
+            } */
+            
+            toAddTo = edgeList.get(index); 
+            toAddTo.getNextPossibilities(image, nextPossibilities);
+            if (nextPossibilities.size() == 0){
+                edgeList.remove(index);
+                continue;
+            }
+            edgeList.add(toAddTo);
+            edgeList.remove(index);
+            
+            int rgb = image.getRGB(toAddTo.getX(), toAddTo.getY());
+            int currentR = (rgb >> 16) & 0xFF;
+            int currentG = (rgb >> 8) & 0xFF;
+            int currentB = rgb & 0xFF;
+            range = 0;
+            colorPossibilities.clear();
+            
+            do{
+                range++;
+                rToCheck = currentR - range;
+                for (int g = -range; g <= range; g++){
+                    for (int b = -range; b <= range; b++){
+                        gToCheck = g + currentG;
+                        bToCheck = b + currentB;
+                        if (rToCheck >= 0 && gToCheck >= 0 && bToCheck >= 0 && rToCheck <= 255 && gToCheck <= 255 && bToCheck <= 255 &&
+                            !colorTracker[rToCheck][gToCheck][bToCheck]){
+                            colorPossibilities.add(new Color(rToCheck, gToCheck, bToCheck, 255).getRGB());
+                        }
+                    }
+                }
+                rToCheck = currentR + range;
+                for (int g = -range; g <= range; g++){
+                    for (int b = -range; b <= range; b++){
+                        gToCheck = g + currentG;
+                        bToCheck = b + currentB;
+                        if (rToCheck >= 0 && gToCheck >= 0 && bToCheck >= 0 && rToCheck <= 255 && gToCheck <= 255 && bToCheck <= 255 &&
+                            !colorTracker[rToCheck][gToCheck][bToCheck]){
+                            colorPossibilities.add(new Color(rToCheck, gToCheck, bToCheck, 255).getRGB());
+                        }
+                    }
+                }
+                gToCheck = currentG - range;
+                for (int r = -range + 1; r <= range - 1; r++){
+                    for (int b = -range; b <= range; b++){
+                        rToCheck = r + currentR;
+                        bToCheck = b + currentB;
+                        if (rToCheck >= 0 && gToCheck >= 0 && bToCheck >= 0 && rToCheck <= 255 && gToCheck <= 255 && bToCheck <= 255 &&
+                            !colorTracker[rToCheck][gToCheck][bToCheck]){
+                            colorPossibilities.add(new Color(rToCheck, gToCheck, bToCheck, 255).getRGB());
+                        }
+                    }
+                }
+                gToCheck = currentG + range;
+                for (int r = -range + 1; r <= range - 1; r++){
+                    for (int b = -range; b <= range; b++){
+                        rToCheck = r + currentR;
+                        bToCheck = b + currentB;
+                        if (rToCheck >= 0 && gToCheck >= 0 && bToCheck >= 0 && rToCheck <= 255 && gToCheck <= 255 && bToCheck <= 255 &&
+                            !colorTracker[rToCheck][gToCheck][bToCheck]){
+                            colorPossibilities.add(new Color(rToCheck, gToCheck, bToCheck, 255).getRGB());
+                        }
+                    }
+                }
+                bToCheck = currentB - range;
+                for (int r = -range + 1; r <= range - 1; r++){
+                    for (int g = -range + 1; g <= range - 1; g++){
+                        rToCheck = r + currentR;
+                        gToCheck = g + currentG;
+                        if (rToCheck >= 0 && gToCheck >= 0 && bToCheck >= 0 && rToCheck <= 255 && gToCheck <= 255 && bToCheck <= 255 &&
+                            !colorTracker[rToCheck][gToCheck][bToCheck]){
+                            colorPossibilities.add(new Color(rToCheck, gToCheck, bToCheck, 255).getRGB());
+                        }
+                    }
+                }
+                bToCheck = currentB + range;
+                for (int r = -range + 1; r <= range - 1; r++){
+                    for (int g = -range + 1; g <= range - 1; g++){
+                        rToCheck = r + currentR;
+                        gToCheck = g + currentG;
+                        if (rToCheck >= 0 && gToCheck >= 0 && bToCheck >= 0 && rToCheck <= 255 && gToCheck <= 255 && bToCheck <= 255 &&
+                            !colorTracker[rToCheck][gToCheck][bToCheck]){
+                            colorPossibilities.add(new Color(rToCheck, gToCheck, bToCheck, 255).getRGB());
+                        }
+                    }
+                }
+            } while (colorPossibilities.size() == 0);
+            
+            index = 0;
+            for (int i = 0; i < nextPossibilities.size(); i++){
+                if (rand.nextInt(100) < dirPercent){
+                    index = i;
+                    break;
+                }
+            }
+            
+            pixelToAdd = nextPossibilities.get(index);
+            colorToAdd = colorPossibilities.get(rand.nextInt(colorPossibilities.size()));
+            image.setRGB(pixelToAdd.getX(), pixelToAdd.getY(), colorToAdd);
+            colorTracker[(colorToAdd >> 16) & 0xFF][(colorToAdd >> 8) & 0xFF][colorToAdd & 0xFF] = true;
+            edgeList.add(pixelToAdd);
+            frame.getContentPane().getComponent(1).repaint();
+            counter++;
+            if (counter % 4096 == 0){
+                System.out.printf("%4f\n", (double) counter / (double) colors * 100);
+            }
+        }
+        frame.getContentPane().getComponent(1).repaint();
+        toFile(image);
+        System.out.println("Done.");
+    }
     
     public static void toFile(BufferedImage i) throws IOException{
         File out = new File("images\\" + System.currentTimeMillis() + ".png");
