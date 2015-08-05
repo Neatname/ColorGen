@@ -13,7 +13,14 @@ public class DirectionalPixel {
     public DirectionalPixel (XORShiftRandom rand, int width, int height){
         x = rand.nextInt(width);
         y = rand.nextInt(height);
-        shapeFactor = (double)rand.nextInt(100) + 1.0;
+        shapeFactor = 50.0;
+        direction = simplify((double)rand.nextInt(100));
+    }
+    
+    public DirectionalPixel (XORShiftRandom rand, int width, int height, double shapeFactor){
+        x = rand.nextInt(width);
+        y = rand.nextInt(height);
+        this.shapeFactor = shapeFactor;
         direction = simplify((double)rand.nextInt(100));
     }
     
@@ -82,7 +89,7 @@ public class DirectionalPixel {
         return simplify(newDirection);
     }
     
-    public void getNextPossibilities (BufferedImage image, ArrayList<DirectionalPixel> nextPossibilities){
+    public void getNextPossibilities (BufferedImage image, ArrayList<DirectionalPixel> nextPossibilities, double curl){
         nextPossibilities.clear();
         ArrayList<Double> differences = new ArrayList<Double>(8);
         int xToCheck;
@@ -92,9 +99,9 @@ public class DirectionalPixel {
                 xToCheck = x + xDiff;
                 yToCheck = y + yDiff;
                 try{
-                    if (image.getRGB(xToCheck, yToCheck) == -33554432){
+                    if (xToCheck >= 0 && yToCheck >= 0 && xToCheck < image.getWidth() && yToCheck < image.getHeight() && image.getRGB(xToCheck, yToCheck) == -33554432){
                         nextPossibilities.add(new DirectionalPixel(this, xToCheck, yToCheck));
-                        differences.add(getDifference(this.direction, this.getRelativeDirection(new int[] {nextPossibilities.get(nextPossibilities.size() - 1).getX(), nextPossibilities.get(nextPossibilities.size() - 1).getY()})));
+                        differences.add(getDifference(this.direction - curl, this.getRelativeDirection(new int[] {nextPossibilities.get(nextPossibilities.size() - 1).getX(), nextPossibilities.get(nextPossibilities.size() - 1).getY()})));
                     }
                 } catch (ArrayIndexOutOfBoundsException e){}
             }

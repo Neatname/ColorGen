@@ -35,7 +35,9 @@ public class ColorGen {
             clouds();
         }
         if (method.equals("directional")){
-            directional();
+            //for(;;){
+                directional();
+            //}
         }
         // whenever you add more methods, just add another if
         
@@ -1069,6 +1071,7 @@ public class ColorGen {
     
     
     public static void directional() throws IOException{
+        XORShiftRandom rand = new XORShiftRandom();
         int colors = 16777216;
         Scanner in = new Scanner(System.in);
         System.out.print("Width: ");
@@ -1081,6 +1084,10 @@ public class ColorGen {
         int indPercent = in.nextInt();
         System.out.print("Direction choosing %: ");
         int dirPercent = in.nextInt();
+        System.out.print("Curl: ");
+        double curl = in.nextDouble();
+        System.out.print("Shape Factor: ");
+        double shapeFactor = in.nextDouble();
         
         // [r][g][b]
         boolean[][][] colorTracker = new boolean[256][256][256];
@@ -1104,8 +1111,7 @@ public class ColorGen {
         frame.pack();
         frame.setVisible(true);
         
-        XORShiftRandom rand = new XORShiftRandom();
-        DirectionalPixel pixelToAdd = new DirectionalPixel(rand, width, height);
+        DirectionalPixel pixelToAdd = new DirectionalPixel(rand, width, height, shapeFactor);
         
         ArrayList<DirectionalPixel> edgeList = new ArrayList<DirectionalPixel>(colors / 20);
         edgeList.add(pixelToAdd);
@@ -1127,7 +1133,7 @@ public class ColorGen {
         int index; DirectionalPixel toAddTo = null; int range; int rToCheck; int gToCheck; int bToCheck; int counter = 1;
         while (edgeList.size() != 0){
             
-            /* index = 0;
+            index = 0;
             if (rand.nextInt(100) < rearPercent){
                 for (int i = 0; i < edgeList.size(); i++){
                     if (rand.nextInt(100) < indPercent){
@@ -1142,11 +1148,11 @@ public class ColorGen {
                         break;
                     }
                 }
-            } */
+            }
             
-            /* index = rand.nextInt(edgeList.size()); */
+            //index = rand.nextInt(edgeList.size());
             
-            index = edgeList.size() - 1;
+            /* index = edgeList.size() - 1;
             if (rand.nextInt(100) < rearPercent){
                 index = rand.nextInt(edgeList.size());
             } else {
@@ -1156,7 +1162,7 @@ public class ColorGen {
                         break;
                     }
                 }
-            }
+            } */
             
             /* index = edgeList.size() - 1;
             for (int i = edgeList.size() - 1; i >= 0; i--){
@@ -1167,7 +1173,7 @@ public class ColorGen {
             } */
             
             toAddTo = edgeList.get(index); 
-            toAddTo.getNextPossibilities(image, nextPossibilities);
+            toAddTo.getNextPossibilities(image, nextPossibilities, curl);
             if (nextPossibilities.size() == 0){
                 edgeList.remove(index);
                 continue;
@@ -1274,6 +1280,7 @@ public class ColorGen {
         frame.getContentPane().getComponent(1).repaint();
         toFile(image);
         System.out.println("Done.");
+        return;
     }
     
     public static void toFile(BufferedImage i) throws IOException{
