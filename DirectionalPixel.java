@@ -5,42 +5,42 @@ public class DirectionalPixel {
                                                         {4.0, 0.0, 0.0},
                                                         {5.0, 6.0, 7.0}};
 
-    private int x;
-    private int y;
-    private double direction;
-    private double shapeFactor;
+    private short x;
+    private short y;
+    private float direction;
+    private float shapeFactor;
 
     public DirectionalPixel (XORShiftRandom rand, int width, int height){
-        x = rand.nextInt(width);
-        y = rand.nextInt(height);
-        shapeFactor = 50.0;
-        direction = simplify((double)rand.nextInt(100));
+        x = (short)rand.nextInt(width);
+        y = (short)rand.nextInt(height);
+        shapeFactor = (float)50.0;
+        direction = simplify((float)rand.nextInt(100));
     }
     
-    public DirectionalPixel (XORShiftRandom rand, int width, int height, double shapeFactor){
-        x = rand.nextInt(width);
-        y = rand.nextInt(height);
+    public DirectionalPixel (XORShiftRandom rand, int width, int height, float shapeFactor){
+        x = (short)rand.nextInt(width);
+        y = (short)rand.nextInt(height);
         this.shapeFactor = shapeFactor;
-        direction = simplify((double)rand.nextInt(100));
+        direction = simplify((float)rand.nextInt(100));
     }
     
     public DirectionalPixel (DirectionalPixel parent, int[] location){
         shapeFactor = parent.getShapeFactor();
         direction = parent.newAverageDirection(location, shapeFactor);
-        x = location[0];
-        y = location[1];
+        x = (short)location[0];
+        y = (short)location[1];
     }
     
     public DirectionalPixel (DirectionalPixel parent, int x, int y){
         shapeFactor = parent.getShapeFactor();
         direction = parent.newAverageDirection(new int[] {x, y}, shapeFactor);
-        this.x = x;
-        this.y = y;
+        this.x = (short)x;
+        this.y = (short)y;
     }
 
-    public DirectionalPixel (int x, int y, double direction, double shapeFactor){
-        this.x = x;
-        this.y = y;
+    public DirectionalPixel (int x, int y, float direction, float shapeFactor){
+        this.x = (short)x;
+        this.y = (short)y;
         this.direction = direction;
         this.shapeFactor = shapeFactor;
     }
@@ -53,15 +53,15 @@ public class DirectionalPixel {
         return y;
     }
     
-    public double getDirection(){
+    public float getDirection(){
         return direction;
     }
     
-    public double getShapeFactor(){
+    public float getShapeFactor(){
         return shapeFactor;
     }
     
-    private double simplify (double direction){
+    private float simplify (float direction){
         while (direction > 4.0 || direction < -4.0){    
             if (direction > 4.0){
                 direction -= 8.0;
@@ -72,12 +72,12 @@ public class DirectionalPixel {
         return direction;
     }
     
-    private double getRelativeDirection (int[] next){
-        return DIRECTIONS[this.x - next[0] + 1][this.y - next[1] + 1];
+    private float getRelativeDirection (int[] next){
+        return (float)DIRECTIONS[this.x - next[0] + 1][this.y - next[1] + 1];
     }
     
-    private double newAverageDirection (int[] next, double shapeFactor){
-        double newDirection = this.getRelativeDirection(next);
+    private float newAverageDirection (int[] next, float shapeFactor){
+        float newDirection = this.getRelativeDirection(next);
         while (Math.abs(this.direction - newDirection) > 4.0){
             if (this.direction - newDirection > 4.0){
                 newDirection += 8.0;
@@ -89,9 +89,9 @@ public class DirectionalPixel {
         return simplify(newDirection);
     }
     
-    public void getNextPossibilities (BufferedImage image, ArrayList<DirectionalPixel> nextPossibilities, double curl){
+    public void getNextPossibilities (BufferedImage image, ArrayList<DirectionalPixel> nextPossibilities, float curl){
         nextPossibilities.clear();
-        ArrayList<Double> differences = new ArrayList<Double>(8);
+        ArrayList<Float> differences = new ArrayList<Float>(8);
         int xToCheck;
         int yToCheck;
         for (int xDiff = -1; xDiff <= 1; xDiff++){
@@ -121,7 +121,7 @@ public class DirectionalPixel {
         }
     }
     
-    private double getDifference(double first, double second){
+    private float getDifference(float first, float second){
         while (Math.abs(first - second) > 4){
             if (first - second > 4){
                 second += 8;

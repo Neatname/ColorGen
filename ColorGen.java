@@ -1085,9 +1085,9 @@ public class ColorGen {
         System.out.print("Direction choosing %: ");
         int dirPercent = in.nextInt();
         System.out.print("Curl: ");
-        double curl = in.nextDouble();
+        float curl = in.nextFloat();
         System.out.print("Shape Factor: ");
-        double shapeFactor = in.nextDouble();
+        int shapeFactor = in.nextInt();
         
         // [r][g][b]
         boolean[][][] colorTracker = new boolean[256][256][256];
@@ -1097,14 +1097,18 @@ public class ColorGen {
             }
         }
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage resized = new BufferedImage(width / 4, height / 4, BufferedImage.TYPE_INT_ARGB);
         Graphics2D graphics = image.createGraphics();
         graphics.setPaint(new Color (0, 0, 0, 254));
         graphics.fillRect(0, 0, image.getWidth(), image.getHeight());
+        graphics = resized.createGraphics();
+        graphics.setPaint(new Color (0, 0, 0, 255));
+        graphics.fillRect(0, 0, resized.getWidth(), resized.getHeight());
         
         JFrame frame = new JFrame("ColorGen");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         JLabel emptyLabel = new JLabel("");
-        emptyLabel.setPreferredSize(new Dimension(width, height));
+        emptyLabel.setPreferredSize(new Dimension(width / 4, height / 4));
         frame.getContentPane().add(emptyLabel, BorderLayout.CENTER);
  
         //Display the window.
@@ -1124,7 +1128,7 @@ public class ColorGen {
         image.setRGB(pixelToAdd.getX(), pixelToAdd.getY(), colorToAdd);
         colorTracker[startR][startG][startB] = true;
         
-        frame.getContentPane().add(new JLabel(new ImageIcon(image)));
+        frame.getContentPane().add(new JLabel(new ImageIcon(resized)));
         frame.setVisible(true);
         
         ArrayList<Integer> colorPossibilities = new ArrayList<Integer>(50);
@@ -1148,6 +1152,10 @@ public class ColorGen {
                         break;
                     }
                 }
+            }
+            
+            if (rand.nextInt(7000000) < 1){
+                curl = -curl;
             }
             
             //index = rand.nextInt(edgeList.size());
@@ -1271,10 +1279,13 @@ public class ColorGen {
             image.setRGB(pixelToAdd.getX(), pixelToAdd.getY(), colorToAdd);
             colorTracker[(colorToAdd >> 16) & 0xFF][(colorToAdd >> 8) & 0xFF][colorToAdd & 0xFF] = true;
             edgeList.add(pixelToAdd);
-            frame.getContentPane().getComponent(1).repaint();
+            if (pixelToAdd.getX() % 4 == 0 && pixelToAdd.getY() % 4 == 0){
+                resized.setRGB(pixelToAdd.getX() / 4, pixelToAdd.getY() / 4, colorToAdd);
+                frame.getContentPane().getComponent(1).repaint();
+            }
             counter++;
             if (counter % 4096 == 0){
-                System.out.printf("%4f\n", (double) counter / (double) colors * 100);
+                System.out.printf("%4f %d\n", (double) counter / (double) colors * 100, edgeList.size());
             }
         }
         frame.getContentPane().getComponent(1).repaint();
