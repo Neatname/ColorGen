@@ -35,9 +35,9 @@ public class ColorGen {
             clouds();
         }
         if (method.equals("directional")){
-            //for(;;){
+            for(;;){
                 directional();
-            //}
+            }
         }
         // whenever you add more methods, just add another if
         
@@ -1073,21 +1073,20 @@ public class ColorGen {
     public static void directional() throws IOException{
         XORShiftRandom rand = new XORShiftRandom();
         int colors = 16777216;
+        int width = 4096;
+        int height = 4096;
         Scanner in = new Scanner(System.in);
-        System.out.print("Width: ");
-        int width = in.nextInt();
-        System.out.print("Height: ");
-        int height = in.nextInt();
         System.out.print("Rear percentage (0-100): ");
-        int rearPercent = in.nextInt();
+        int rearPercent = rand.nextInt(40) + 20;
         System.out.print("Individual percent (0-1000): ");
-        int indPercent = in.nextInt();
+        int indPercent = rand.nextInt(100) + 1;
         System.out.print("Direction choosing %: ");
-        int dirPercent = in.nextInt();
+        int dirPercent = rand.nextInt(40) + 60;
         System.out.print("Curl: ");
-        float curl = in.nextFloat();
+        float curl = (float)rand.nextInt(8);
         System.out.print("Shape Factor: ");
-        int shapeFactor = in.nextInt();
+        int shapeFactor = rand.nextInt(2000) + 1;
+        int flipChance = rand.nextInt(16777000);
         
         // [r][g][b]
         boolean[][][] colorTracker = new boolean[256][256][256];
@@ -1106,7 +1105,7 @@ public class ColorGen {
         graphics.fillRect(0, 0, resized.getWidth(), resized.getHeight());
         
         JFrame frame = new JFrame("ColorGen");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        //frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         JLabel emptyLabel = new JLabel("");
         emptyLabel.setPreferredSize(new Dimension(width / 4, height / 4));
         frame.getContentPane().add(emptyLabel, BorderLayout.CENTER);
@@ -1117,7 +1116,7 @@ public class ColorGen {
         
         DirectionalPixel pixelToAdd = new DirectionalPixel(rand, width, height, shapeFactor);
         
-        ArrayList<DirectionalPixel> edgeList = new ArrayList<DirectionalPixel>(colors / 20);
+        ArrayList<DirectionalPixel> edgeList = new ArrayList<DirectionalPixel>(colors / 10);
         edgeList.add(pixelToAdd);
         
         int startR = rand.nextInt(256);
@@ -1154,7 +1153,7 @@ public class ColorGen {
                 }
             }
             
-            if (rand.nextInt(7000000) < 1){
+            if (rand.nextInt(flipChance) < 1){
                 curl = -curl;
             }
             
@@ -1289,8 +1288,9 @@ public class ColorGen {
             }
         }
         frame.getContentPane().getComponent(1).repaint();
-        toFile(image);
+        toFile(image, rand);
         System.out.println("Done.");
+        frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
         return;
     }
     
@@ -1300,6 +1300,10 @@ public class ColorGen {
     }
     
     
+    public static void toFile(BufferedImage i, XORShiftRandom rand) throws IOException{
+        File out = new File("images\\" + System.currentTimeMillis() + rand.nextInt(100000) + ".png");
+        ImageIO.write(i, "PNG", out);
+    }
     
 }
 
