@@ -1364,6 +1364,11 @@ public class ColorGen {
         frame.getContentPane().add(new JLabel(new ImageIcon(resized)));
         frame.setVisible(true);
         
+        if (pixelToAdd.getX() % 4 == 0 && pixelToAdd.getY() % 4 == 0){
+            resized.setRGB(pixelToAdd.getX() / 4, pixelToAdd.getY() / 4, colorToAdd);
+            frame.getContentPane().getComponent(1).repaint();
+        }
+        
         ArrayList<Integer> colorPossibilities = new ArrayList<Integer>(50);
         ArrayList<DirectionalPixel> nextPossibilities = new ArrayList<DirectionalPixel>(8);
         
