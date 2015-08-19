@@ -1284,7 +1284,7 @@ public class ColorGen {
     
     
     public static void combo() throws IOException{
-        XORShiftRandom rand = new XORShiftRandom();
+        XORShiftRandom rand = new XORShiftRandom(201451);
         int colors = 16777216;
         int width = 4096;
         int height = 4096;
@@ -1296,8 +1296,8 @@ public class ColorGen {
         int indPercent = in.nextInt();
         System.out.print("Direction choosing %: ");
         int dirPercent = in.nextInt();
-        //System.out.print("Curl: ");
-        float curl = rand.nextInt(8);
+        System.out.print("Curl: ");
+        float curl = in.nextFloat();
         System.out.print("Shape Factor: ");
         int shapeFactor = in.nextInt();
         System.out.print("Flip chance 1 in ");
@@ -1347,6 +1347,8 @@ public class ColorGen {
         frame.setVisible(true);
         
         DirectionalPixel pixelToAdd = new DirectionalPixel(rand, width, height, shapeFactor);
+        
+        pixelToAdd = new DirectionalPixel(2048, 2048, 2, shapeFactor);
         
         ArrayList<DirectionalPixel> edgeList = new ArrayList<DirectionalPixel>(colors / 10);
         edgeList.add(pixelToAdd);
