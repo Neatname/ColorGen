@@ -113,7 +113,7 @@ public class ColorGen {
         int colors = 16777216;
         int width = 4096;
         int height = 4096;
-        int startingPoints = 1;
+        int startingPoints = 20;
         
         // array that keeps track of whether colors have been used. true = used.
         boolean[] colorArray = new boolean[colors + 1];
@@ -188,7 +188,7 @@ public class ColorGen {
         
         Integer[] coords = null;
         ArrayList<Color> colorPossibilities = new ArrayList<Color>();
-        int range; int neighborRange = 5;
+        int range; int neighborRange = 1;
         while (edgeList.size() != 0){
             
             // gets a random edge pixel and resets the possibilities list
@@ -1290,7 +1290,7 @@ public class ColorGen {
         int height = 4096;
         Scanner in = new Scanner(System.in);
         
-       /*  //System.out.print("Rear percentage (0-100): ");
+        //System.out.print("Rear percentage (0-100): ");
         //int rearPercent = in.nextInt();
         System.out.print("Individual percent (0-1000): ");
         int indPercent = in.nextInt();
@@ -1303,9 +1303,9 @@ public class ColorGen {
         System.out.print("Flip chance 1 in ");
         int flipChance = in.nextInt();
         System.out.print("Mode change chance 1 in ");
-        int modeChance = in.nextInt(); */
+        int modeChance = in.nextInt();
         
-        //System.out.print("Rear percentage (0-100): ");
+        /* //System.out.print("Rear percentage (0-100): ");
         //int rearPercent = in.nextInt();
         System.out.print("Individual percent (0-1000): ");
         int indPercent = rand.nextInt(50) + 1;
@@ -1318,7 +1318,7 @@ public class ColorGen {
         System.out.print("Flip chance 1 in ");
         int flipChance = rand.nextInt(10000) + 1;
         System.out.print("Mode change chance 1 in ");
-        int modeChance = rand.nextInt(5000) + 1;
+        int modeChance = rand.nextInt(5000) + 1; */
         
         // [r][g][b]
         boolean[][][] colorTracker = new boolean[256][256][256];
