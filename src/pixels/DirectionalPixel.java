@@ -93,7 +93,7 @@ public class DirectionalPixel {
         return simplify(newDirection);
     }
     
-    public List<DirectionalPixel> getNextPossibilities (BufferedImage image, float curl){
+    public List<DirectionalPixel> getSortedPossibilities (BufferedImage image, float curl){
         List<DirectionalPixel> nextPossibilities = new ArrayList<DirectionalPixel>();
         ArrayList<Float> differences = new ArrayList<Float>(8);
         int xToCheck;
@@ -135,5 +135,23 @@ public class DirectionalPixel {
             }
         }
         return Math.abs(first - second);
+    }
+    
+    public List<DirectionalPixel> getPossibilities(BufferedImage image){
+        List<DirectionalPixel> nextPossibilities = new ArrayList<DirectionalPixel>();
+        int xToCheck;
+        int yToCheck;
+        for (int xDiff = -1; xDiff <= 1; xDiff++){
+            for (int yDiff = -1; yDiff <= 1; yDiff++){
+                xToCheck = x + xDiff;
+                yToCheck = y + yDiff;
+                try{
+                    if (xToCheck >= 0 && yToCheck >= 0 && xToCheck < image.getWidth() && yToCheck < image.getHeight() && image.getRGB(xToCheck, yToCheck) == -33554432){
+                        nextPossibilities.add(new DirectionalPixel(this, xToCheck, yToCheck));
+                    }
+                } catch (ArrayIndexOutOfBoundsException e){}
+            }
+        }
+        return nextPossibilities;
     }
 }

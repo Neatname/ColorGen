@@ -5,24 +5,16 @@ import java.util.ListIterator;
 
 import pixels.DirectionalPixel;
 
-public class DirectionalWithIterator extends RandomImage {
-    
+public class FastIterator extends RandomImage {
+
     private int individualPercent;
-    
-    private float curl;
-    
-    private int flipChance;
-    
-    private int directionPercent;
     
     private ListIterator<DirectionalPixel> edgeIterator;
     
-    public DirectionalWithIterator(int colors, int width, int height, int scaleFactor, int individualPercent,
-                                   float curl, int flipChance, int directionPercent, int shapeFactor){
+    public FastIterator(int colors, int width, int height, int scaleFactor, int individualPercent, int shapeFactor){
+        
         super(colors, width, height, scaleFactor);
         this.individualPercent = individualPercent;
-        this.curl = curl;
-        this.flipChance = flipChance;
         DirectionalPixel pixelToAdd = new DirectionalPixel(rand, width, height, shapeFactor);
         edgeList.add(pixelToAdd);
         
@@ -36,40 +28,32 @@ public class DirectionalWithIterator extends RandomImage {
         
         edgeIterator = edgeList.listIterator();
     }
-    
     @Override
     public void nextPixel() {
         
-        if (rand.nextInt(flipChance) < 1){
-            curl = -curl;
-        }
-        
         DirectionalPixel toAddTo = getNextPixel(); 
-        List<DirectionalPixel> nextPossibilities = toAddTo.getSortedPossibilities(image, curl);
+        List<DirectionalPixel> nextPossibilities = toAddTo.getPossibilities(image);
         if (nextPossibilities.size() == 0){
             edgeIterator.remove();
             return;
         }
         
-        int rgb = image.getRGB(toAddTo.getX(), toAddTo.getY());
+        int colorToMatch = image.getRGB(toAddTo.getX(), toAddTo.getY());
         
-        List<Integer> colorPossibilities = getClosestColors(rgb);
+        List<Integer> colorPossibilities = getClosestColors(colorToMatch);
         
-        
-        int index = 0;
-        for (int i = 0; i < nextPossibilities.size(); i++){
-            if (rand.nextInt(100) < directionPercent){
-                index = i;
-                break;
+        while (nextPossibilities.size() != 0 && colorPossibilities.size() != 0){
+            DirectionalPixel pixelToAdd = nextPossibilities.remove(nextPossibilities.size() - 1);
+            int colorToAdd = colorPossibilities.get(rand.nextInt(colorPossibilities.size()));
+            colorTracker[(colorToAdd >> 16) & 0xFF][(colorToAdd >> 8) & 0xFF][colorToAdd & 0xFF] = 0;
+            edgeIterator.add(pixelToAdd);
+            if (rand.nextInt(2) == 0){
+                edgeIterator.previous();
             }
+            updateImages(pixelToAdd.getX(), pixelToAdd.getY(), colorToAdd);
         }
-        
-        DirectionalPixel pixelToAdd = nextPossibilities.get(index);
-        int colorToAdd = colorPossibilities.get(rand.nextInt(colorPossibilities.size()));
-        colorTracker[(colorToAdd >> 16) & 0xFF][(colorToAdd >> 8) & 0xFF][colorToAdd & 0xFF] = 0;
-        edgeIterator.add(pixelToAdd);
-        updateImages(pixelToAdd.getX(), pixelToAdd.getY(), colorToAdd);
     }
+    
     
     private DirectionalPixel getNextPixel(){
         
@@ -103,6 +87,5 @@ public class DirectionalWithIterator extends RandomImage {
                 }
             }
         }
-        
     }
 }

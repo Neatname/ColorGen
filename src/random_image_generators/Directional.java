@@ -50,7 +50,7 @@ public class Directional extends RandomImage {
         }
         
         DirectionalPixel toAddTo = edgeList.get(index); 
-        List<DirectionalPixel> nextPossibilities = toAddTo.getNextPossibilities(image, curl);
+        List<DirectionalPixel> nextPossibilities = toAddTo.getSortedPossibilities(image, curl);
         if (nextPossibilities.size() == 0){
             edgeList.remove(index);
             passed = false;
