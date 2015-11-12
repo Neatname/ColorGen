@@ -154,4 +154,22 @@ public class DirectionalPixel {
         }
         return nextPossibilities;
     }
+
+    public List<DirectionalPixel> getMorePossibilities(BufferedImage image) {
+        List<DirectionalPixel> nextPossibilities = new ArrayList<DirectionalPixel>();
+        int xToCheck;
+        int yToCheck;
+        for (int xDiff = -2; xDiff <= 2; xDiff++){
+            for (int yDiff = -2; yDiff <= 2; yDiff++){
+                xToCheck = x + xDiff;
+                yToCheck = y + yDiff;
+                try{
+                    if (xToCheck >= 0 && yToCheck >= 0 && xToCheck < image.getWidth() && yToCheck < image.getHeight() && image.getRGB(xToCheck, yToCheck) == -33554432){
+                        nextPossibilities.add(new DirectionalPixel(this, xToCheck, yToCheck));
+                    }
+                } catch (ArrayIndexOutOfBoundsException e){}
+            }
+        }
+        return nextPossibilities;
+    }
 }

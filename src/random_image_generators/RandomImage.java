@@ -70,12 +70,37 @@ public abstract class RandomImage {
     }
     
     private void setupColorTracker(){
+        if (width * height == colors){
+            fillColorTracker();
+        } else if (width * height < colors){
+            fillRandomColors();
+        } else {
+            throw new IllegalArgumentException();
+        }
+    }
+    
+    private void fillColorTracker(){
         colorTracker = new int[256][256][256];
         for (int r = 0; r <= 255; r++){
             for (int g = 0; g<= 255; g++){
                 for (int b = 0; b <= 255; b++){
                     colorTracker[r][g][b] = new Color(r, g, b, 255).getRGB();
                 }
+            }
+        }
+    }
+    
+    private void fillRandomColors(){
+        colorTracker = new int[256][256][256];
+        int target = width * height;
+        for (int i = 0; i < target; i++){
+            int r = rand.nextInt(256);
+            int g = rand.nextInt(256);
+            int b = rand.nextInt(256);
+            if (colorTracker[r][g][b] == 0){
+                colorTracker[r][g][b] = new Color(r, g, b, 255).getRGB();
+            } else {
+                i--;
             }
         }
     }
