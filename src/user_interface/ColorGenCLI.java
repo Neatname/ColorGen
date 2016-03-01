@@ -17,8 +17,8 @@ public class ColorGenCLI {
     
     private JFrame frame;
     private int colors = 16777216;
-    private int width = 4096;
-    private int height = 4096;
+    private int width = 1920;
+    private int height = 1080;
     private RandomImage image;
     private BufferedImage display;
     
@@ -78,7 +78,7 @@ public class ColorGenCLI {
         System.out.print("Scale factor: ");
         int scaleFactor = 4;
         
-        image = new FastIterator(colors, width, height, scaleFactor,
+        image = new FastIterator(width, height, scaleFactor,
                                             individualPercent,  shapeFactor);
     }
     
@@ -88,7 +88,7 @@ public class ColorGenCLI {
         System.out.print("Scale factor: ");
         int scaleFactor = 4;
         
-        image = new SwitchIterator(colors, width, height, scaleFactor, maxPercent, minPercent);
+        image = new SwitchIterator(width, height, scaleFactor, maxPercent, minPercent);
     }
     
     private void makeFasterIterator() {
@@ -100,7 +100,7 @@ public class ColorGenCLI {
         System.out.print("Scale factor: ");
         int scaleFactor = 4;
         
-        image = new FasterIterator(colors, width, height, scaleFactor,
+        image = new FasterIterator(width, height, scaleFactor,
                                             individualPercent,  shapeFactor);
     }
 
@@ -120,7 +120,7 @@ public class ColorGenCLI {
         System.out.print("Scale factor: ");
         int scaleFactor = 4;
         
-        image = new Directional(colors, width, height, scaleFactor, rearPercent,
+        image = new Directional(width, height, scaleFactor, rearPercent,
                                 individualPercent, curl, flipChance, directionPercent, shapeFactor);
     }
     
@@ -141,7 +141,7 @@ public class ColorGenCLI {
         System.out.print("Scale factor: ");
         int scaleFactor = 4;
         
-        image = new DoubleIterator(colors, width, height, scaleFactor,
+        image = new DoubleIterator(width, height, scaleFactor,
                                    individualPercent, curl, flipChance, directionPercent, shapeFactor, colorPercent);
     }
     
@@ -160,7 +160,7 @@ public class ColorGenCLI {
         System.out.print("Scale factor: ");
         int scaleFactor = 4;
         
-        image = new DirectionalWithIterator(colors, width, height, scaleFactor,
+        image = new DirectionalWithIterator(width, height, scaleFactor,
                                             individualPercent, curl, flipChance, directionPercent, shapeFactor);
     }
     

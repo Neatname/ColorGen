@@ -18,7 +18,9 @@ public abstract class RandomImage {
     /** this is the number of colors representable in 32 bits. */
     public static final int MAX_COLORS = 16777216;
     
-    protected int colors;
+    public static final int RGB_VALUES = 256;
+    
+    public static final int MAX_COLOR_VALUE = 255;
     
     protected int width;
     
@@ -32,16 +34,17 @@ public abstract class RandomImage {
     
     private int scaleFactor;
     
+    protected double colorScalar;
+    
     protected List<DirectionalPixel> edgeList;
     
     protected XORShiftRandom rand;
     
     
-    public RandomImage(int colors, int width, int height, int scaleFactor){
-        if (colors > MAX_COLORS || width * height > MAX_COLORS){
+    public RandomImage(int width, int height, int scaleFactor){
+        if (width * height > MAX_COLORS){
             throw new IllegalArgumentException();
         }
-        this.colors = colors;
         this.width = width;
         this.height = height;
         this.scaleFactor = scaleFactor;
@@ -70,37 +73,26 @@ public abstract class RandomImage {
     }
     
     private void setupColorTracker(){
-        if (width * height == colors){
+        if (width * height <= MAX_COLORS){
             fillColorTracker();
-        } else if (width * height < colors){
-            fillRandomColors();
         } else {
             throw new IllegalArgumentException();
         }
     }
     
     private void fillColorTracker(){
-        colorTracker = new int[256][256][256];
-        for (int r = 0; r <= 255; r++){
-            for (int g = 0; g<= 255; g++){
-                for (int b = 0; b <= 255; b++){
-                    colorTracker[r][g][b] = new Color(r, g, b, 255).getRGB();
+    	int pixels = width * height;
+    	int arraySize = 1;
+    	while (arraySize * arraySize * arraySize < pixels){
+    		arraySize++;
+    	}
+    	colorScalar = (double) RGB_VALUES / (double) arraySize;
+        colorTracker = new int[arraySize][arraySize][arraySize];
+        for (int r = 0; r < arraySize; r++){
+            for (int g = 0; g < arraySize; g++){
+                for (int b = 0; b < arraySize; b++){
+                    colorTracker[r][g][b] = new Color((int)(r * colorScalar), (int)(g * colorScalar), (int)(b * colorScalar), MAX_COLOR_VALUE).getRGB();
                 }
-            }
-        }
-    }
-    
-    private void fillRandomColors(){
-        colorTracker = new int[256][256][256];
-        int target = width * height;
-        for (int i = 0; i < target; i++){
-            int r = rand.nextInt(256);
-            int g = rand.nextInt(256);
-            int b = rand.nextInt(256);
-            if (colorTracker[r][g][b] == 0){
-                colorTracker[r][g][b] = new Color(r, g, b, 255).getRGB();
-            } else {
-                i--;
             }
         }
     }
@@ -131,6 +123,9 @@ public abstract class RandomImage {
         int currentR = (colorToMatch >> 16) & 0xFF;
         int currentG = (colorToMatch >> 8) & 0xFF;
         int currentB = colorToMatch & 0xFF;
+        currentR /= colorScalar;
+        currentG /= colorScalar;
+        currentB /= colorScalar;
         int range = 0;
         do{
             range++;
@@ -140,7 +135,7 @@ public abstract class RandomImage {
                     for (int b = -range; b <= range; b++){
                         gToCheck = g + currentG;
                         bToCheck = b + currentB;
-                        if (gToCheck >= 0 && bToCheck >= 0 && gToCheck <= 255 && bToCheck <= 255 &&
+                        if (gToCheck >= 0 && bToCheck >= 0 && gToCheck < colorTracker.length && bToCheck < colorTracker.length &&
                             colorTracker[rToCheck][gToCheck][bToCheck] != 0){
                             closestColors.add(colorTracker[rToCheck][gToCheck][bToCheck]);
                         }
@@ -148,12 +143,12 @@ public abstract class RandomImage {
                 }
             }
             rToCheck = currentR + range;
-            if (rToCheck <= 255){
+            if (rToCheck < colorTracker.length){
                 for (int g = -range; g <= range; g++){
                     for (int b = -range; b <= range; b++){
                         gToCheck = g + currentG;
                         bToCheck = b + currentB;
-                        if (gToCheck >= 0 && bToCheck >= 0 && gToCheck <= 255 && bToCheck <= 255 &&
+                        if (gToCheck >= 0 && bToCheck >= 0 && gToCheck < colorTracker.length && bToCheck < colorTracker.length &&
                             colorTracker[rToCheck][gToCheck][bToCheck] != 0){
                             closestColors.add(colorTracker[rToCheck][gToCheck][bToCheck]);
                         }
@@ -166,7 +161,7 @@ public abstract class RandomImage {
                     for (int b = -range; b <= range; b++){
                         rToCheck = r + currentR;
                         bToCheck = b + currentB;
-                        if (rToCheck >= 0 && bToCheck >= 0 && rToCheck <= 255 && bToCheck <= 255 &&
+                        if (rToCheck >= 0 && bToCheck >= 0 && rToCheck < colorTracker.length && bToCheck < colorTracker.length &&
                             colorTracker[rToCheck][gToCheck][bToCheck] != 0){
                             closestColors.add(colorTracker[rToCheck][gToCheck][bToCheck]);
                         }
@@ -174,12 +169,12 @@ public abstract class RandomImage {
                 }
             }
             gToCheck = currentG + range;
-            if(gToCheck <= 255){
+            if(gToCheck < colorTracker.length){
                 for (int r = -range + 1; r <= range - 1; r++){
                     for (int b = -range; b <= range; b++){
                         rToCheck = r + currentR;
                         bToCheck = b + currentB;
-                        if (rToCheck >= 0 && bToCheck >= 0 && rToCheck <= 255 && bToCheck <= 255 &&
+                        if (rToCheck >= 0 && bToCheck >= 0 && rToCheck < colorTracker.length && bToCheck < colorTracker.length &&
                             colorTracker[rToCheck][gToCheck][bToCheck] != 0){
                             closestColors.add(colorTracker[rToCheck][gToCheck][bToCheck]);
                         }
@@ -192,7 +187,7 @@ public abstract class RandomImage {
                     for (int g = -range + 1; g <= range - 1; g++){
                         rToCheck = r + currentR;
                         gToCheck = g + currentG;
-                        if (rToCheck >= 0 && gToCheck >= 0 && rToCheck <= 255 && gToCheck <= 255 &&
+                        if (rToCheck >= 0 && gToCheck >= 0 && rToCheck < colorTracker.length && gToCheck < colorTracker.length &&
                             colorTracker[rToCheck][gToCheck][bToCheck] != 0){
                             closestColors.add(colorTracker[rToCheck][gToCheck][bToCheck]);
                         }
@@ -200,12 +195,12 @@ public abstract class RandomImage {
                 }
             }
             bToCheck = currentB + range;
-            if (bToCheck <= 255){
+            if (bToCheck < colorTracker.length){
                 for (int r = -range + 1; r <= range - 1; r++){
                     for (int g = -range + 1; g <= range - 1; g++){
                         rToCheck = r + currentR;
                         gToCheck = g + currentG;
-                        if (rToCheck >= 0 && gToCheck >= 0 && rToCheck <= 255 && gToCheck <= 255 &&
+                        if (rToCheck >= 0 && gToCheck >= 0 && rToCheck < colorTracker.length && gToCheck < colorTracker.length &&
                             colorTracker[rToCheck][gToCheck][bToCheck] != 0){
                             closestColors.add(colorTracker[rToCheck][gToCheck][bToCheck]);
                         }

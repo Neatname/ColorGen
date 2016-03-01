@@ -15,9 +15,9 @@ public class SwitchIterator extends RandomImage {
     
     private int currentPercent;
     
-    public SwitchIterator(int colors, int width, int height, int scaleFactor, int maxPercent, int minPercent){
+    public SwitchIterator(int width, int height, int scaleFactor, int maxPercent, int minPercent){
         
-        super(colors, width, height, scaleFactor);
+        super(width, height, scaleFactor);
         this.maxPercent = maxPercent;
         this.minPercent = minPercent;
         this.currentPercent = minPercent + rand.nextInt(maxPercent - minPercent + 1);

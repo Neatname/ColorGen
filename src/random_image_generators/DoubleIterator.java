@@ -22,9 +22,9 @@ public class DoubleIterator extends RandomImage {
     
     private int colorPercent;
     
-    public DoubleIterator(int colors, int width, int height, int scaleFactor, int individualPercent,
+    public DoubleIterator(int width, int height, int scaleFactor, int individualPercent,
                                    float curl, int flipChance, int directionPercent, int shapeFactor, int colorPercent){
-        super(colors, width, height, scaleFactor);
+        super(width, height, scaleFactor);
         this.individualPercent = individualPercent;
         this.curl = curl;
         this.flipChance = flipChance;

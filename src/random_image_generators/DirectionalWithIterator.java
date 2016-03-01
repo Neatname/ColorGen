@@ -17,9 +17,9 @@ public class DirectionalWithIterator extends RandomImage {
     
     private ListIterator<DirectionalPixel> edgeIterator;
     
-    public DirectionalWithIterator(int colors, int width, int height, int scaleFactor, int individualPercent,
+    public DirectionalWithIterator(int width, int height, int scaleFactor, int individualPercent,
                                    float curl, int flipChance, int directionPercent, int shapeFactor){
-        super(colors, width, height, scaleFactor);
+        super(width, height, scaleFactor);
         this.individualPercent = individualPercent;
         this.curl = curl;
         this.flipChance = flipChance;

@@ -11,9 +11,9 @@ public class FasterIterator extends RandomImage {
     
     private ListIterator<DirectionalPixel> edgeIterator;
     
-    public FasterIterator(int colors, int width, int height, int scaleFactor, int individualPercent, int shapeFactor){
+    public FasterIterator(int width, int height, int scaleFactor, int individualPercent, int shapeFactor){
         
-        super(colors, width, height, scaleFactor);
+        super(width, height, scaleFactor);
         this.individualPercent = individualPercent;
         DirectionalPixel pixelToAdd = new DirectionalPixel(rand, width, height, shapeFactor);
         edgeList.add(pixelToAdd);

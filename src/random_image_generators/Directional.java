@@ -20,9 +20,9 @@ public class Directional extends RandomImage {
     
     private int directionPercent;
     
-    public Directional(int colors, int width, int height, int scaleFactor, int rearPercent,
+    public Directional(int width, int height, int scaleFactor, int rearPercent,
                        int individualPercent, float curl, int flipChance, int directionPercent, int shapeFactor){
-        super(colors, width, height, scaleFactor);
+        super(width, height, scaleFactor);
         passed = true;
         this.rearPercent = rearPercent;
         this.individualPercent = individualPercent;

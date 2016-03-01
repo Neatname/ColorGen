@@ -11,16 +11,16 @@ public class FastIterator extends RandomImage {
     
     private ListIterator<DirectionalPixel> edgeIterator;
     
-    public FastIterator(int colors, int width, int height, int scaleFactor, int individualPercent, int shapeFactor){
+    public FastIterator(int width, int height, int scaleFactor, int individualPercent, int shapeFactor){
         
-        super(colors, width, height, scaleFactor);
+        super(width, height, scaleFactor);
         this.individualPercent = individualPercent;
         DirectionalPixel pixelToAdd = new DirectionalPixel(rand, width, height, shapeFactor);
         edgeList.add(pixelToAdd);
         
-        int startR = rand.nextInt(256);
-        int startG = rand.nextInt(256);
-        int startB = rand.nextInt(256);
+        int startR = rand.nextInt(colorTracker.length);
+        int startG = rand.nextInt(colorTracker.length);
+        int startB = rand.nextInt(colorTracker.length);
         int colorToAdd = colorTracker[startR][startG][startB];
         
         image.setRGB(pixelToAdd.getX(), pixelToAdd.getY(), colorToAdd);
@@ -45,7 +45,7 @@ public class FastIterator extends RandomImage {
         while (nextPossibilities.size() != 0 && colorPossibilities.size() != 0){
             DirectionalPixel pixelToAdd = nextPossibilities.remove(nextPossibilities.size() - 1);
             int colorToAdd = colorPossibilities.get(rand.nextInt(colorPossibilities.size()));
-            colorTracker[(colorToAdd >> 16) & 0xFF][(colorToAdd >> 8) & 0xFF][colorToAdd & 0xFF] = 0;
+            colorTracker[(int)(((colorToAdd >> 16) & 0xFF) / colorScalar)][(int)(((colorToAdd >> 8) & 0xFF) / colorScalar)][(int)((colorToAdd & 0xFF) / colorScalar)] = 0;
             edgeIterator.add(pixelToAdd);
             if (rand.nextInt(2) == 0){
                 edgeIterator.previous();
